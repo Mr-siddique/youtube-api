@@ -1,6 +1,10 @@
 const express = require("express");
 const bodyParser = require("body-parser");
+const cookieSession = require("cookie-session");
+const passport = require("passport");
 const client = require("./connection");
+const { cookieKey } = require("./config/keys");
+const cors = require("cors");
 const {
   fetchAllvideos,
   postVideo,
@@ -17,10 +21,11 @@ const {
 } = require("./routes/commentRoutes");
 const { handleLike } = require("./routes/likeRoutes");
 const app = express();
-require('./services/passport');
+require("./services/passport");
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+
 app.use(function (req, res, next) {
   const corsWhiteList = ["http://localhost:3000"];
   if (corsWhiteList.indexOf(req.headers.origin) !== -1) {
@@ -34,11 +39,20 @@ app.use(function (req, res, next) {
   next();
 });
 
+app.use(
+  cookieSession({
+    maxAge: 30 * 24 * 60 * 60 * 1000,
+    keys: [cookieKey],
+  })
+);
 
-require('./routes/authRoutes')(app);
+app.use(passport.initialize());
+app.use(passport.session());
+
 app.get("/", (req, res) => {
   res.send("Api is ready");
 });
+require("./routes/authRoutes")(app);
 
 app.get("/videos", fetchAllvideos);
 app.get("/video/:id", fetchSingleVideo);
@@ -62,4 +76,3 @@ client.connect((err) => {
     console.log("connected");
   }
 });
-

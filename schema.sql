@@ -28,8 +28,8 @@ id SERIAL PRIMARY KEY,
 name TEXT,
 email TEXT,
 avatar TEXT,
-likes INTEGER[],
-views INTEGER[],
+likes INTEGER[] DEFAULT {},
+views INTEGER[] DEFAULT {},
 subscriberscount INTEGER DEFAULT 0
 );
 
